@@ -5,3 +5,4 @@ authors = ["Hyeon Kim <simnalamburt@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+memmap = "0.7"
