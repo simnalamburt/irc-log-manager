@@ -1,46 +1,33 @@
 use memmap::MmapOptions;
+use regex::Regex;
 use std::env;
-use std::error;
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::{BufReader, Cursor};
-use std::time::SystemTime;
+use std::error::Error;
+use std::fs::{File, read_dir};
 
-fn main() -> Result<(), Box<error::Error>> {
-    let file = File::open(format!(
-        r"{}/.weechat/logs/irc.ozinger.#langdev.weechatlog",
-        env::var("HOME")?
-    ))?;
+fn main() -> Result<(), Box<Error>> {
+    let re = Regex::new(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\t$")?;
 
-    //                    | dev   | release
-    // -------------------|-------|---------
-    // mmap() with for    | ~8.0s | ~65.4ms
-    // mmap() with Cursor | ~2.3s | ~275ms
-    // BufReader          | ~2.1s | ~300ms
+    let home_dir = env::var("HOME")?;
+    let log_dir = format!(r"{}/.weechat/logs/", home_dir);
+    for entry in read_dir(log_dir)? {
+        let entry = entry?;
+        let file = File::open(entry.path())?;
+        let mmap = unsafe { MmapOptions::new().map(&file)? };
 
-    let now = SystemTime::now();
-    let mmap = unsafe { MmapOptions::new().map(&file)? };
-    let mut count = 0;
-    for i in 0..mmap.len() {
-        if mmap[i] == b'\n' {
-            count += 1;
+        // Create index
+        for i in 0..mmap.len() {
+            if mmap[i] != b'\n' { continue }
+
+            let end = i + 21;
+            if end > mmap.len() { continue }
+
+            let words = std::str::from_utf8(&mmap[i..end])?;
+            if !re.is_match(words) { continue }
+
+            println!("File {:?} has issue with {}th byte", entry.file_name(), i);
+            break
         }
     }
-    println!("{}, {:?}", count, now.elapsed()?);
-
-    let now = SystemTime::now();
-    let mut count = 0;
-    for _ in Cursor::new(mmap).lines() {
-        count += 1;
-    }
-    println!("{}, {:?}", count, now.elapsed()?);
-
-    let now = SystemTime::now();
-    let mut count = 0;
-    for _ in BufReader::new(file).lines() {
-        count += 1;
-    }
-    println!("{}, {:?}", count, now.elapsed()?);
 
     Ok(())
 }
