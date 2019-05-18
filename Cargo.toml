@@ -1,5 +1,5 @@
 [package]
-name = "irc-channel-rank"
+name = "irc-log-manager"
 version = "0.1.0"
 authors = ["Hyeon Kim <simnalamburt@gmail.com>"]
 edition = "2018"
