@@ -229,7 +229,7 @@ fn sort(verbose: bool) -> Fallible<()> {
 
     result.sort_unstable_by_key(|e| (-e.2, e.3));
     for (i, (server, channel, ..)) in result.into_iter().enumerate() {
-        let new_index = i + 1;
+        let new_index = i + 2;
 
         println!("/buffer {}.#{}", server, channel);
         println!("/buffer move {}", new_index);
