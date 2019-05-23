@@ -72,10 +72,8 @@ fn logs_into_par_iter(
                 channel.to_lowercase()
             );
             let file = File::open(&path);
-            if file.is_err() {
-                if verbose {
-                    eprintln!(r#"Failed to read "{}"#, path);
-                }
+            if file.is_err() && verbose {
+                eprintln!(r#"Failed to read "{}"#, path);
             }
             let mmap = unsafe { MmapOptions::new().map(&file?)? };
             Ok((server, channel, index, mmap))
