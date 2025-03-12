@@ -148,7 +148,7 @@ fn check(verbose: bool) -> Fallible<()> {
         }
         Ok(())
     })
-    .collect::<Result<_, _>>()?;
+    .collect::<Result<(), _>>()?;
 
     println!("Checked {} files, no issue was found", count);
 
