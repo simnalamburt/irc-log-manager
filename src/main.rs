@@ -1,13 +1,15 @@
-use clap::{App, AppSettings, clap_app, crate_version};
-use failure::{Fail, Fallible, bail};
-use memmap::{Mmap, MmapOptions};
-use rayon::prelude::*;
-use regex::Regex;
 use std::env;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::prelude::*;
 use std::str::from_utf8;
+
+use anyhow::{Result as Fallible, bail};
+use clap::{App, AppSettings, clap_app, crate_version};
+use memmap::{Mmap, MmapOptions};
+use rayon::prelude::*;
+use regex::Regex;
+use thiserror::Error;
 
 fn main() -> Fallible<()> {
     let matches = clap_app!(
@@ -82,12 +84,9 @@ fn logs_into_par_iter(
     Ok(iter)
 }
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 enum Error {
-    #[fail(
-        display = r#"File "{}" has an unexpected format in {}th byte. ("{}")"#,
-        file_name, position, line
-    )]
+    #[error(r#"File "{file_name}" has an unexpected format in {position}th byte. ("{line}")"#)]
     UnexpectedFormat {
         file_name: String,
         position: usize,
