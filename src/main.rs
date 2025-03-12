@@ -1,12 +1,12 @@
-use clap::{clap_app, crate_version, App, AppSettings};
-use failure::{bail, Fail, Fallible};
+use clap::{App, AppSettings, clap_app, crate_version};
+use failure::{Fail, Fallible, bail};
 use memmap::{Mmap, MmapOptions};
 use rayon::prelude::*;
 use regex::Regex;
 use std::env;
 use std::fs::File;
-use std::io::prelude::*;
 use std::io::BufReader;
+use std::io::prelude::*;
 use std::str::from_utf8;
 
 fn main() -> Fallible<()> {
